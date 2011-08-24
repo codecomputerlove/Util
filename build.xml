@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Code.Util" default="build" basedir=".">
+	
+	<property file="build.properties"/>
+	
+	<!--
+	<taskdef name="jsmin" classname="net.matthaynes.jsmin.JSMin_Task" classpath="tools/jsmin/jsmin.0.2.4.jar"/>
+	-->
+	
+	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="tools/google-closure/compiler.jar" />
+	
+	<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask"  classpath="tools/jslint4java-2.0.0/jslint4java-2.0.0.jar" />
+	
+	
+	<target name="build">
+		
+		<buildnumber/>
+	
+		<echo>Building = ${project.build.version}</echo>
+		
+		<!-- Delete and re-create working and artifact directory -->
+		<delete dir="${project.build.workdir}"/>
+		<delete dir="${project.build.artifactdir}/${project.build.version}"/>
+		
+		<mkdir dir="${project.build.workdir}"/>
+		<mkdir dir="${project.build.artifactdir}/${project.build.version}"/>
+		
+		<antcall target="checkJS" />
+		
+		<antcall target="buildJs">
+			<param name="engine" value=""/>
+		</antcall>
+		
+		<antcall target="buildJs">
+			<param name="engine" value=".jquery"/>
+		</antcall>
+		
+		<antcall target="buildLibs" />
+		
+		<antcall target="moveToArtifact" />
+				
+	</target>
+	
+	
+	
+	<target name="checkJS">
+		
+		<jslint options="browser,indent=0,plusplus,sloppy,white,indent=0,newcap,nomen,regexp,confusion,forin=true">
+			<formatter type="plain" />		
+			<fileset dir="${project.src.dir}" includes="*.js" />
+		</jslint>
+	
+	</target>
+	
+	
+	
+	<target name="buildJs">
+		
+		<concat destfile="${project.build.workdir}/code.util${engine}-${project.build.version}.js">	
+			
+			<fileset dir="." includes="${project.src.dir}/util.js" />
+			<fileset dir="." includes="${project.src.dir}/browser.js" />
+			<fileset dir="." includes="${project.src.dir}/events${engine}.js" />
+			<fileset dir="." includes="${project.src.dir}/dom${engine}.js" />
+			<fileset dir="." includes="${project.src.dir}/animation.js" />
+			<fileset dir="." includes="${project.src.dir}/touchelement.js" />
+			<fileset dir="." includes="${project.src.dir}/touchelement.class.js" />
+			
+		</concat>
+		
+		<antcall target="versionStamp">
+			<param name="filePath" value="${project.build.workdir}/code.util${engine}-${project.build.version}.js"/>
+		</antcall>
+		
+		<antcall target="minimizeJS">
+			<param name="dir" value="${project.build.workdir}" />
+			<param name="file" value="code.util${engine}-${project.build.version}.js"/>
+			<param name="output" value="${project.build.workdir}/code.util${engine}-${project.build.version}.min.js"/>
+		</antcall>
+		
+		<antcall target="addLicense">
+			<param name="file" value="${project.build.workdir}/code.util${engine}-${project.build.version}.min.js"/>
+		</antcall>
+		
+	</target>
+	
+	
+	
+	<target name="buildLibs">
+		
+		<!-- Copy the library folder to the working folder -->
+		<copy todir="${project.build.workdir}/lib">
+			<fileset dir="${project.src.dir}/lib"/>
+		</copy>
+		
+		
+	</target>
+	
+	
+	
+	<target name="moveToArtifact">
+		
+		<copy todir="${project.build.artifactdir}/${project.build.version}">
+			<fileset dir="${project.build.workdir}"/>
+			<fileset file="MIT-license.txt"/>
+			<fileset file="README.md"/>
+			<fileset file="${project.src.dir}/change.log"/>
+		</copy>
+		
+		
+		<copy todir="${project.build.artifactdir}/${project.build.version}/lib">
+			<fileset dir="${project.build.workdir}/lib"/>
+		</copy>
+		
+		<delete dir="${project.build.workdir}" />
+		
+	</target>
+	
+	
+	
+	
+	
+	<!-- Utility tasks -->
+	
+	<target name="minimizeJS">
+	
+		<jscomp compilationLevel="simple" debug="false" output="${output}">
+			<sources dir="${dir}">
+				<file name="${file}" />
+			</sources>
+		</jscomp>
+
+	</target>
+	
+	
+	<target name="addLicense">
+		
+		<concat destfile="${file}.tmp">	
+			<fileset dir="." includes="${project.src.dir}/version.header.txt" />
+			<fileset dir="." includes="${file}" />
+		</concat>
+		
+		<antcall target="versionStamp">
+			<param name="filePath" value="${file}.tmp"/>
+		</antcall>
+		
+		<delete file="${file}"/>
+		
+		<move file="${file}.tmp" tofile="${file}" />
+		
+	</target>
+	
+	
+	<target name="versionStamp">
+		
+		<replace file="${filePath}" token="%%version%%" value="${project.build.version}"/>
+		<replace file="${filePath}" token="%%year%%" value="${project.build.year}"/>
+	
+	</target>
+	
+	
+</project>
