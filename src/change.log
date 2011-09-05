@@ -7,3 +7,7 @@ Initial release
 ----------------------------
 - Util.arrayIndexOf
 
+
+1.0.2 05.09.11 - Ste Brennan
+----------------------------
+- Modified parameters to the touchelement class
