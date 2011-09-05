@@ -220,6 +220,30 @@
 		
 		
 		/*
+		 * Function: indexOf
+		 */
+		arrayIndexOf: function(obj, array){
+			
+			var i, retval;
+			
+			retval = -1;
+			
+			for (i=0; i<array.length; i++){
+				
+				if (array[i] === obj){
+					retval = i;
+					break;
+				}
+				
+			}
+			
+			return retval;
+			
+		},
+		
+		
+		
+		/*
 		 * Function: objectHasProperty
 		 */
 		objectHasProperty: function(obj, propName){

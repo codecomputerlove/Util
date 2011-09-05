@@ -12,6 +12,8 @@
 		
 		el: null,
 		
+		captureSettings: null,
+		
 		touchStartPoint: null,
 		touchEndPoint: null,
 		touchStartTime: null,
@@ -30,10 +32,6 @@
 		gestureChangeHandler: null,
 		gestureEndHandler: null,
 		
-		
-		captureGesture: null,
-		captureMove: null,
-		captureSwipe: null,
 		swipeThreshold: null,
 		swipeTimeThreshold: null,
 		doubleTapSpeed: null,
@@ -62,13 +60,18 @@
 		/*
 		 * Function: initialize
 		 */
-		initialize: function(el, captureMove, captureSwipe, captureGesture){
+		initialize: function(el, captureSettings){
 			
 			this.el = el;
 			
-			this.captureSwipe = Util.coalesce(captureSwipe, false);
-			this.captureMove = Util.coalesce(captureMove, false);
-			this.captureGesture = Util.coalesce(captureGesture, false);
+			this.captureSettings = {
+				swipe: false,
+				move: false,
+				gesture: false,
+				doubleTap: false
+			};
+			
+			Util.extend(this.captureSettings, captureSettings);
 			
 			this.swipeThreshold = 50;
 			this.swipeTimeThreshold = 250;
@@ -100,14 +103,14 @@
 			}
 			
 			Util.Events.add(this.el, 'touchstart', this.touchStartHandler);
-			if (this.captureMove){
+			if (this.captureSettings.move){
 				Util.Events.add(this.el, 'touchmove', this.touchMoveHandler);
 			}
 			Util.Events.add(this.el, 'touchend', this.touchEndHandler);
 			
 			Util.Events.add(this.el, 'mousedown', this.mouseDownHandler);
 			
-			if (Util.Browser.isGestureSupported && this.captureGesture){
+			if (Util.Browser.isGestureSupported && this.captureSettings.gesture){
 				Util.Events.add(this.el, 'gesturestart', this.gestureStartHandler);
 				Util.Events.add(this.el, 'gesturechange', this.gestureChangeHandler);
 				Util.Events.add(this.el, 'gestureend', this.gestureEndHandler);
@@ -123,13 +126,13 @@
 		removeEventHandlers: function(){
 			
 			Util.Events.remove(this.el, 'touchstart', this.touchStartHandler);
-			if (this.captureMove){
+			if (this.captureSettings.move){
 				Util.Events.remove(this.el, 'touchmove', this.touchMoveHandler);
 			}
 			Util.Events.remove(this.el, 'touchend', this.touchEndHandler);
 			Util.Events.remove(this.el, 'mousedown', this.mouseDownHandler);
 			
-			if (Util.Browser.isGestureSupported && this.captureGesture){
+			if (Util.Browser.isGestureSupported && this.captureSettings.gesture){
 				Util.Events.remove(this.el, 'gesturestart', this.gestureStartHandler);
 				Util.Events.remove(this.el, 'gesturechange', this.gestureChangeHandler);
 				Util.Events.remove(this.el, 'gestureend', this.gestureEndHandler);
@@ -171,7 +174,7 @@
 			distY = this.touchEndPoint.y - this.touchStartPoint.y;
 			dist = Math.sqrt( (distX * distX) + (distY * distY) );
 			
-			if (this.captureSwipe){
+			if (this.captureSettings.swipe){
 				endTime = new Date();
 				diffTime = endTime - this.touchStartTime;
 				
@@ -208,6 +211,7 @@
 			
 			
 			if (dist > 1){
+			
 				Util.Events.fire(this, { 
 					type: Util.TouchElement.EventTypes.onTouch, 
 					target: this, 
@@ -218,21 +222,32 @@
 			}
 			
 			
+			if (!this.captureSettings.doubleTap){
+				
+				Util.Events.fire(this, { 
+					type: Util.TouchElement.EventTypes.onTouch, 
+					target: this, 
+					point: this.touchEndPoint,
+					action: Util.TouchElement.ActionTypes.tap
+				});
+				return;
+				
+			}
+			
 			if (Util.isNothing(this.doubleTapTimeout)){
 				
-				self = this;
 				this.doubleTapTimeout = window.setTimeout(function(){
 					
-					self.doubleTapTimeout = null;
+					this.doubleTapTimeout = null;
 					
-					Util.Events.fire(self, { 
+					Util.Events.fire(this, { 
 						type: Util.TouchElement.EventTypes.onTouch, 
-						target: self, 
+						target: this, 
 						point: this.touchEndPoint,
 						action: Util.TouchElement.ActionTypes.tap
 					});
 					
-				}, this.doubleTapSpeed);
+				}.bind(this), this.doubleTapSpeed);
 				
 				return;
 				
@@ -259,7 +274,7 @@
 		 * Function: onTouchStart
 		 */
 		onTouchStart: function(e){
-		
+			
 			e.preventDefault();
 			
 			// No longer need mouse events
@@ -269,7 +284,7 @@
 				touchEvent = Util.Events.getTouchEvent(e),
 				touches = touchEvent.touches;
 			
-			if (touches.length > 1 && this.captureGesture){
+			if (touches.length > 1 && this.captureSettings.gesture){
 				this.isGesture = true;
 				return;
 			}
@@ -285,6 +300,7 @@
 				point: this.touchStartPoint
 			});
 			
+			
 		},
 		
 		
@@ -296,7 +312,7 @@
 		
 			e.preventDefault();
 			
-			if (this.isGesture && this.captureGesture){
+			if (this.isGesture && this.captureSettings.gesture){
 				return;
 			}
 			
@@ -320,7 +336,7 @@
 		 */
 		onTouchEnd: function(e){
 			
-			if (this.isGesture && this.captureGesture){
+			if (this.isGesture && this.captureSettings.gesture){
 				return;
 			}
 			
@@ -362,7 +378,7 @@
 			Util.Events.remove(this.el, 'touchend', this.touchEndHandler);
 			
 			// Add move/up/out
-			if (this.captureMove){
+			if (this.captureSettings.move){
 				Util.Events.add(this.el, 'mousemove', this.mouseMoveHandler);
 			}
 			Util.Events.add(this.el, 'mouseup', this.mouseUpHandler);
@@ -408,7 +424,7 @@
 			
 			e.preventDefault();
 			
-			if (this.captureMove){
+			if (this.captureSettings.move){
 				Util.Events.remove(this.el, 'mousemove', this.mouseMoveHandler);
 			}
 			Util.Events.remove(this.el, 'mouseup', this.mouseUpHandler);
@@ -436,7 +452,7 @@
 			
 			e.preventDefault();
 			
-			if (this.captureMove){
+			if (this.captureSettings.move){
 				Util.Events.remove(this.el, 'mousemove', this.mouseMoveHandler);
 			}
 			Util.Events.remove(this.el, 'mouseup', this.mouseUpHandler);
