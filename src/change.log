@@ -11,3 +11,14 @@ Initial release
 1.0.2 05.09.11 - Ste Brennan
 ----------------------------
 - Modified parameters to the touchelement class
+
+
+1.0.3 12s.09.11 - Ste Brennan
+----------------------------
+- Modified arrayIndexOf to include optional property to check against
+
+- Added new option to TouchElementClass "defaultCaptureSettings.preventDefaultTouchEvents". Default - true
+
+- Added "fadeTo" to animation
+
+- Upgraded to jQuery 1.6.3
