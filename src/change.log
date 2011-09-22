@@ -13,7 +13,7 @@ Initial release
 - Modified parameters to the touchelement class
 
 
-1.0.3 12s.09.11 - Ste Brennan
+1.0.3 12.09.11 - Ste Brennan
 ----------------------------
 - Modified arrayIndexOf to include optional property to check against
 
@@ -22,3 +22,13 @@ Initial release
 - Added "fadeTo" to animation
 
 - Upgraded to jQuery 1.6.3
+
+
+1.0.4 22.09.11 - Ste Brennan
+----------------------------
+- Added firefox to browser detection
+
+- Fixed problem with setStyle in the jQuery implementation
+
+- Upgraded to jQuery 1.6.4
+
