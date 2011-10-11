@@ -114,6 +114,8 @@
 		
 		<delete dir="${project.build.workdir}" />
 		
+		<fixcrlf srcdir="${project.build.artifactdir}" includes="**/*.log,**/*.js,**/*.txt,**/*.css,**/*.html" eol="crlf" />
+		
 	</target>
 	
 	

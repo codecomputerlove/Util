@@ -32,3 +32,16 @@ Initial release
 
 - Upgraded to jQuery 1.6.4
 
+
+1.0.5 22.09.11 - Ste Brennan
+----------------------------
+- Added e.targetEl and e.currentTargetEl to TouchElementClass events
+
+- Fixed mouse out to work like IR mouseleave
+
+
+1.0.6 27.09.11 - Ste Brennan
+----------------------------
+- Added Fennec to Browser
+
+- Added isLandscape to Browser
