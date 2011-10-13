@@ -5,7 +5,7 @@
 (function(window, klass, Util){
 	
 	
-	Util.registerNamespace('Util.TouchElement');
+	Util.registerNamespace('Code.Util.TouchElement');
 	
 	
 	Util.TouchElement.TouchElementClass = klass({
