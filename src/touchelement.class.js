@@ -215,7 +215,7 @@
 			}
 			
 			
-			if (dist > 1){
+			if (dist > this.swipeThreshold){
 			
 				Util.Events.fire(this, { 
 					type: Util.TouchElement.EventTypes.onTouch, 
